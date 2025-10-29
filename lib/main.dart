@@ -1,3 +1,4 @@
+import 'package:depi_fianl/chart_page.dart';
 import 'package:depi_fianl/service_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(home: ServicePage());
+    return GetMaterialApp(home: ChartPage());
   }
 }
