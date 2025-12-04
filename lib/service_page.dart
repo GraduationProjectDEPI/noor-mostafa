@@ -1,45 +1,55 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'service.dart';
 
-class ServicePage extends StatelessWidget {
+class ServicePage extends StatefulWidget {
   ServicePage({super.key});
+
+  @override
+  State<ServicePage> createState() => _ServicePageState();
+}
+
+class _ServicePageState extends State<ServicePage> {
   final controller = Get.put(TextRecognitionController());
+  int reading = 0;
+
+  int consumption = 0;
+
+  var bill = 0.0.obs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'take your image',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Color.fromRGBO(67, 45, 215, 1),
-      ),
+      appBar: AppBar(title: const Text('take your image')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             // ------- choose image button -------------
             ElevatedButton(
-              onPressed: () => controller.pickImageAndExtractText(
-                source: ImageSource.gallery,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(67, 45, 215, 1),
-                foregroundColor: Colors.white,
-              ),
+              onPressed: () async {
+                await controller.pickImageAndExtractText(
+                  source: ImageSource.gallery,
+                );
+                reading = int.tryParse(controller.extractedText.value) ?? 0;
+                consumption = await onNewReading(reading);
+                print("🔥 Consumption = $consumption");
+                bill.value = await calculateTotalBill(consumption);
+              },
               child: const Text('choose image'),
             ),
             //  ------ take photo button ---------
             ElevatedButton(
-              onPressed: () => controller.pickImageAndExtractText(
-                source: ImageSource.camera,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(67, 45, 215, 1),
-                foregroundColor: Colors.white,
-              ),
+              onPressed: () async {
+                await controller.pickImageAndExtractText(
+                  source: ImageSource.camera,
+                );
+                reading = int.tryParse(controller.extractedText.value) ?? 0;
+
+                consumption = await onNewReading(reading);
+              },
               child: const Text('take photo'),
             ),
 
@@ -70,6 +80,7 @@ class ServicePage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
+            Obx(() => Text('${bill.value}')),
           ],
         ),
       ),
